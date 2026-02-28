@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TWITCHHACK :: Player Manual</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green:         #00ff41;
+      --dim-green:     #00a82a;
+      --muted-green:   rgba(0,255,65,.5);
+      --purple:        #9b59b6;
+      --purple-bright: #c084fc;
+      --blue:          #00b4ff;
+      --red:           #ff2244;
+      --yellow:        #f0c040;
+      --bg:            #050508;
+      --bg-panel:      #0a0a12;
+      --bg-terminal:   #07070e;
+      --text:          #8899aa;
+      --border:        #141420;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--bg);
+      background-image: repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.18) 3px,rgba(0,0,0,.18) 4px);
+      color: var(--green);
+      font-family: 'Share Tech Mono','Courier New',monospace;
+      min-height: 100vh;
+      padding: 24px 20px 60px;
+    }
+
+    @keyframes blink     { 0%,100%{opacity:1} 50%{opacity:0} }
+    @keyframes flicker   { 0%,97%,100%{opacity:1} 98%{opacity:.75} 99%{opacity:.9} }
+    @keyframes glow-purp { 0%,100%{box-shadow:0 0 14px rgba(192,132,252,.25)} 50%{box-shadow:0 0 28px rgba(192,132,252,.5)} }
+
+    .cursor { display:inline-block; animation:blink 1s step-end infinite; }
+
+    /* ── Layout ── */
+    .container { max-width:1020px; margin:0 auto; }
+
+    /* ── Nav ── */
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 36px;
+      padding: 12px 16px;
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+    nav a {
+      color: var(--text);
+      text-decoration: none;
+      font-size: .72rem;
+      letter-spacing: .1em;
+      padding: 3px 8px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      transition: color .15s, border-color .15s;
+    }
+    nav a:hover { color: var(--purple-bright); border-color: rgba(192,132,252,.4); }
+
+    /* ── Header ── */
+    header {
+      text-align: center;
+      padding: 30px 0 28px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 36px;
+      animation: flicker 10s infinite;
+    }
+    .logo {
+      font-family: 'VT323',monospace;
+      font-size: clamp(2.8rem,7vw,5.5rem);
+      line-height: 1;
+      letter-spacing: .1em;
+      color: var(--green);
+      text-shadow: 0 0 28px rgba(0,255,65,.8), 0 0 70px rgba(0,255,65,.25);
+      margin-bottom: 10px;
+    }
+    .logo span { color: var(--purple-bright); text-shadow: 0 0 24px rgba(192,132,252,.9); }
+    .tagline { font-size:.78rem; letter-spacing:.32em; color:var(--blue); text-shadow:0 0 10px rgba(0,180,255,.5); text-transform:uppercase; }
+
+    /* ── Terminal window chrome ── */
+    .win {
+      background: var(--bg-terminal);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    .win-bar {
+      display: flex; align-items: center; gap: 7px;
+      padding: 8px 14px;
+      background: #0d0d18;
+      border-bottom: 1px solid var(--border);
+    }
+    .dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .dot-r{background:#ff5f57} .dot-y{background:#ffbd2e} .dot-g{background:#28c840}
+    .win-title { margin-left:auto; font-size:.72rem; letter-spacing:.15em; color:var(--text); }
+    .win-body  { padding:18px; }
+
+    /* ── Section scaffold ── */
+    .section { margin-bottom: 50px; }
+    .section-head {
+      display:flex; align-items:center; gap:12px;
+      margin-bottom:22px; padding-bottom:10px;
+      border-bottom:1px solid var(--border);
+    }
+    .section-tag {
+      background:var(--purple); color:#fff;
+      font-size:.66rem; padding:2px 9px;
+      border-radius:2px; letter-spacing:.12em;
+      box-shadow:0 0 12px rgba(155,89,182,.5);
+    }
+    .section-title {
+      font-size:1.15rem; letter-spacing:.22em;
+      color:var(--purple-bright);
+      text-shadow:0 0 14px rgba(192,132,252,.5);
+      text-transform:uppercase;
+    }
+
+    /* ── Quickstart steps ── */
+    .qs-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; }
+    .qs-card {
+      background:var(--bg-panel);
+      border:1px solid rgba(0,255,65,.18);
+      border-radius:4px; padding:18px;
+    }
+    .qs-num { font-family:'VT323',monospace; font-size:2.8rem; color:var(--purple-bright); line-height:1; margin-bottom:6px; }
+    .qs-cmd { color:var(--green); font-size:1rem; text-shadow:0 0 8px rgba(0,255,65,.35); margin-bottom:8px; }
+    .qs-desc { color:var(--text); font-size:.83rem; line-height:1.65; }
+
+    /* ── Network map ── */
+    .map-win { border:1px solid rgba(0,255,65,.25); margin-bottom:0; animation:glow-purp 3s ease-in-out infinite; }
+    .map-win .win-title { color:var(--green); }
+    .map-body { padding:20px 22px; font-size:.83rem; line-height:2; }
+    .map-home { color:var(--purple-bright); text-shadow:0 0 8px rgba(192,132,252,.5); }
+    .map-row  { display:flex; align-items:baseline; gap:10px; padding-left:24px; }
+    .map-line { color:rgba(0,255,65,.35); }
+    .map-loc  { color:var(--blue); text-shadow:0 0 6px rgba(0,180,255,.35); min-width:130px; }
+    .map-tier { font-size:.72rem; color:var(--text); margin-left:4px; }
+
+    /* ── Stats box ── */
+    .stat-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:18px; }
+    .stat-card {
+      background:var(--bg-panel);
+      border:1px solid rgba(155,89,182,.25);
+      border-radius:4px; padding:14px; text-align:center;
+    }
+    .stat-val   { font-family:'VT323',monospace; font-size:2rem; color:var(--green); line-height:1; }
+    .stat-label { color:var(--text); font-size:.73rem; margin-top:3px; }
+
+    /* ── Level bar ── */
+    .level-track {
+      background:var(--bg-panel);
+      border:1px solid rgba(0,255,65,.15);
+      border-radius:4px; padding:18px;
+    }
+    .level-label { font-size:.75rem; color:var(--text); margin-bottom:10px; letter-spacing:.1em; }
+    .level-milestones { display:flex; flex-wrap:wrap; gap:8px; }
+    .lvl-badge {
+      font-size:.75rem; padding:4px 10px;
+      border-radius:2px; border:1px solid;
+    }
+    .lvl-badge.tier-1 { color:var(--dim-green); border-color:rgba(0,168,42,.3); background:rgba(0,168,42,.06); }
+    .lvl-badge.tier-2 { color:var(--blue);      border-color:rgba(0,180,255,.3); background:rgba(0,180,255,.06); }
+    .lvl-badge.tier-3 { color:var(--yellow);    border-color:rgba(240,192,64,.3); background:rgba(240,192,64,.06); }
+    .lvl-badge.tier-4 { color:var(--purple-bright); border-color:rgba(192,132,252,.3); background:rgba(192,132,252,.06); }
+    .lvl-badge.tier-5 { color:var(--red);       border-color:rgba(255,34,68,.3); background:rgba(255,34,68,.06); }
+
+    /* ── Location sections ── */
+    .loc-grid { display:grid; gap:16px; }
+    .loc-win {
+      border:1px solid rgba(0,180,255,.25);
+      box-shadow:0 0 16px rgba(0,180,255,.06);
+    }
+    .loc-win .win-bar { background:rgba(0,180,255,.06); }
+    .loc-win .win-title { color:var(--blue); }
+    .loc-header { display:flex; align-items:baseline; gap:14px; margin-bottom:14px; }
+    .loc-name {
+      font-family:'VT323',monospace; font-size:1.8rem; color:var(--blue);
+      text-shadow:0 0 12px rgba(0,180,255,.5); line-height:1;
+    }
+    .loc-cmd { color:var(--dim-green); font-size:.78rem; }
+    .loc-desc { color:var(--text); font-size:.82rem; line-height:1.6; margin-bottom:14px; }
+
+    /* Attack table */
+    .atk-table { width:100%; border-collapse:collapse; font-size:.78rem; }
+    .atk-table th {
+      color:var(--purple-bright); font-size:.66rem; letter-spacing:.18em;
+      text-align:left; padding:7px 10px;
+      border-bottom:1px solid var(--border);
+    }
+    .atk-table td {
+      padding:8px 10px;
+      border-bottom:1px solid rgba(20,20,32,.8);
+      color:var(--text); vertical-align:middle;
+    }
+    .atk-table td:first-child { color:var(--green); white-space:nowrap; }
+    .atk-table tr:last-child td { border-bottom:none; }
+    .atk-table tbody tr:hover td { background:rgba(0,180,255,.03); }
+    .lvl-req { color:var(--yellow); font-size:.72rem; }
+    .pts-val  { color:var(--purple-bright); }
+    .item-tag {
+      font-size:.68rem; padding:2px 6px;
+      border:1px solid rgba(0,180,255,.3);
+      border-radius:2px; color:var(--blue);
+      white-space:nowrap;
+    }
+    .chance-easy { color:var(--dim-green); }
+    .chance-med  { color:var(--yellow); }
+    .chance-hard { color:var(--red); }
+
+    /* ── Items ── */
+    .items-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(175px,1fr)); gap:11px; }
+    .item-card {
+      background:var(--bg-panel);
+      border:1px solid rgba(0,180,255,.25);
+      border-radius:4px; padding:13px 12px;
+      transition:border-color .2s, box-shadow .2s;
+    }
+    .item-card:hover { border-color:rgba(0,180,255,.7); box-shadow:0 0 16px rgba(0,180,255,.15); }
+    .item-card.secret { border-color:rgba(192,132,252,.25); }
+    .item-card.secret:hover { border-color:rgba(192,132,252,.7); box-shadow:0 0 16px rgba(192,132,252,.15); }
+    .item-icon   { font-size:1.4rem; margin-bottom:5px; }
+    .item-name   { color:var(--blue); font-size:.8rem; margin-bottom:4px; }
+    .item-card.secret .item-name { color:var(--purple-bright); }
+    .item-boosts { color:rgba(0,255,65,.5); font-size:.68rem; line-height:1.5; }
+
+    /* ── Secrets ── */
+    .secret-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:14px; }
+    .secret-card {
+      background:var(--bg-panel);
+      border:1px solid rgba(192,132,252,.3);
+      border-radius:4px; padding:18px;
+    }
+    .secret-trigger { color:var(--purple-bright); font-size:1rem; text-shadow:0 0 8px rgba(192,132,252,.4); margin-bottom:8px; }
+    .secret-detail  { color:var(--text); font-size:.82rem; line-height:1.65; }
+    .secret-reward  { color:var(--yellow); font-size:.78rem; margin-top:8px; }
+
+    /* ── Shared utils ── */
+    .hl-green { color:var(--green);         text-shadow:0 0 6px rgba(0,255,65,.3); }
+    .hl-blue  { color:var(--blue);          text-shadow:0 0 6px rgba(0,180,255,.3); }
+    .hl-purp  { color:var(--purple-bright); text-shadow:0 0 6px rgba(192,132,252,.3); }
+    .hl-red   { color:var(--red);           text-shadow:0 0 6px rgba(255,34,68,.3); }
+    .hl-yellow{ color:var(--yellow); }
+
+    .note-box {
+      background:var(--bg-panel);
+      border:1px solid rgba(0,255,65,.15);
+      border-radius:4px; padding:13px 16px;
+      color:var(--text); font-size:.82rem; line-height:1.65;
+      margin-top:14px;
+    }
+
+    /* ── Command table ── */
+    .cmd-table { width:100%; border-collapse:collapse; font-size:.8rem; }
+    .cmd-table th {
+      color:var(--purple-bright); font-size:.68rem; letter-spacing:.18em;
+      text-align:left; padding:8px 14px;
+      border-bottom:1px solid var(--border);
+    }
+    .cmd-table td {
+      padding:9px 14px;
+      border-bottom:1px solid rgba(20,20,32,.8);
+      color:var(--text); vertical-align:top;
+    }
+    .cmd-table td:first-child { color:var(--green); white-space:nowrap; }
+    .cmd-table tr:last-child td { border-bottom:none; }
+    .cmd-table tbody tr:hover td { background:rgba(155,89,182,.04); }
+
+    /* ── Tips ── */
+    .tips-list { list-style:none; display:flex; flex-direction:column; gap:10px; }
+    .tips-list li { color:var(--text); font-size:.86rem; padding-left:20px; position:relative; line-height:1.65; }
+    .tips-list li::before { content:'>'; position:absolute; left:0; color:var(--purple-bright); }
+
+    /* ── Footer ── */
+    footer {
+      text-align:center; padding-top:28px;
+      border-top:1px solid var(--border);
+      color:rgba(0,255,65,.25); font-size:.7rem; letter-spacing:.3em;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar       { width:6px; }
+    ::-webkit-scrollbar-track { background:var(--bg); }
+    ::-webkit-scrollbar-thumb { background:rgba(155,89,182,.4); border-radius:3px; }
+
+    @media (max-width:600px) {
+      .atk-table .hide-sm { display:none; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ── HEADER ─────────────────────────────────── -->
+  <header>
+    <div class="logo">TWITC<span>H</span>ACK</div>
+    <div class="tagline">PAINFULBOT // HACKER MANUAL // twitch.tv/b7h30<span class="cursor">_</span></div>
+  </header>
+
+  <!-- ── NAV ───────────────────────────────────── -->
+  <nav>
+    <a href="#quickstart">Quick Start</a>
+    <a href="#map">The Map</a>
+    <a href="#leveling">Leveling</a>
+    <a href="#email">Email</a>
+    <a href="#shadow">/etc/shadow</a>
+    <a href="#website">Website</a>
+    <a href="#database">Database</a>
+    <a href="#server">Server</a>
+    <a href="#network">Network</a>
+    <a href="#evilcorp">EvilCorp</a>
+    <a href="#items">Items</a>
+    <a href="#boss">Boss Battle</a>
+    <a href="#secrets">Secrets</a>
+    <a href="#commands">Commands</a>
+    <a href="#tips">Tips</a>
+  </nav>
+
+  <!-- ── QUICKSTART ────────────────────────────── -->
+  <div class="section" id="quickstart">
+    <div class="section-head">
+      <span class="section-tag">START</span>
+      <span class="section-title">Quick Start</span>
+    </div>
+    <div class="qs-grid">
+      <div class="qs-card">
+        <div class="qs-num">01</div>
+        <div class="qs-cmd">!start</div>
+        <div class="qs-desc">Register your hacker account. You start at <span class="hl-green">Level 1</span>, <span class="hl-green">50 HP</span>, <span class="hl-green">0 points</span>, location: <span class="hl-blue">home</span>. One-time setup.</div>
+      </div>
+      <div class="qs-card">
+        <div class="qs-num">02</div>
+        <div class="qs-cmd">!hack &lt;location&gt;</div>
+        <div class="qs-desc">Move to a hacking location — email, website, server, etc. Type <span class="hl-green">!hack</span> alone to see where you are. No level requirement to travel.</div>
+      </div>
+      <div class="qs-card">
+        <div class="qs-num">03</div>
+        <div class="qs-cmd">!attacks</div>
+        <div class="qs-desc">Shows every attack command available at your current location, including level requirements. Then pick an attack and run it.</div>
+      </div>
+      <div class="qs-card">
+        <div class="qs-num">04</div>
+        <div class="qs-cmd">!status</div>
+        <div class="qs-desc">Check your level, HP, points, location, and items at any time. Add a player's name (<span class="hl-green">!status theo</span>) to look someone up.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── NETWORK MAP ────────────────────────────── -->
+  <div class="section" id="map">
+    <div class="section-head">
+      <span class="section-tag">MAP</span>
+      <span class="section-title">Network Map</span>
+    </div>
+    <div class="win map-win">
+      <div class="win-bar">
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+        <div class="win-title">NETWORK_TOPOLOGY // !hack &lt;node&gt; to traverse</div>
+      </div>
+      <div class="map-body">
+        <div style="margin-bottom:6px;"><span class="map-home">[HOME]</span> <span style="color:rgba(0,255,65,.3)">// starting node, no attacks available</span></div>
+        <div class="map-row"><span class="map-line">├──►</span> <span class="map-loc">email</span>        <span class="map-tier">phishing &amp; spoofing — <span class="hl-green">lvl 0+</span></span></div>
+        <div class="map-row"><span class="map-line">├──►</span> <span class="map-loc">/etc/shadow</span>  <span class="map-tier">password cracking — <span class="hl-green">lvl 15+</span></span></div>
+        <div class="map-row"><span class="map-line">├──►</span> <span class="map-loc">website</span>      <span class="map-tier">web app exploitation — <span class="hl-blue">lvl 5+</span></span></div>
+        <div class="map-row"><span class="map-line">├──►</span> <span class="map-loc">database</span>     <span class="map-tier">database intrusion — <span class="hl-yellow">lvl 45+</span></span></div>
+        <div class="map-row"><span class="map-line">├──►</span> <span class="map-loc">server</span>       <span class="map-tier">server exploitation — <span class="hl-yellow">lvl 5+</span></span></div>
+        <div class="map-row"><span class="map-line">├──►</span> <span class="map-loc">network</span>      <span class="map-tier">network attacks — <span class="hl-purp">lvl 75+</span></span></div>
+        <div class="map-row"><span class="map-line">└──►</span> <span class="map-loc">evilcorp</span>     <span class="map-tier">endgame infiltration — <span class="hl-red">lvl 90+</span></span></div>
+        <div style="margin-top:12px;color:rgba(0,255,65,.3);font-size:.75rem;">&gt; You can travel to any node at any time. Level gates apply to attacks, not movement.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── LEVELING ───────────────────────────────── -->
+  <div class="section" id="leveling">
+    <div class="section-head">
+      <span class="section-tag">XP</span>
+      <span class="section-title">Stats &amp; Leveling</span>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-val">50</div><div class="stat-label">starting HP<br>(max 1000)</div></div>
+      <div class="stat-card"><div class="stat-val">0</div><div class="stat-label">starting points</div></div>
+      <div class="stat-card"><div class="stat-val">1</div><div class="stat-label">starting level<br>(max 100)</div></div>
+      <div class="stat-card"><div class="stat-val">100</div><div class="stat-label">points per level</div></div>
+    </div>
+    <div class="level-track">
+      <div class="level-label">KEY LEVEL MILESTONES — level = points ÷ 100</div>
+      <div class="level-milestones">
+        <span class="lvl-badge tier-1">Lvl 1 &nbsp;· 0 pts · !phish unlocked</span>
+        <span class="lvl-badge tier-1">Lvl 5 &nbsp;· 400 pts · !spoof, !ffuf, !nmap</span>
+        <span class="lvl-badge tier-1">Lvl 10 · 900 pts · !dump</span>
+        <span class="lvl-badge tier-1">Lvl 15 · 1,400 pts · /etc/shadow opens</span>
+        <span class="lvl-badge tier-1">Lvl 25 · 2,400 pts · !bruteforce</span>
+        <span class="lvl-badge tier-2">Lvl 30 · 2,900 pts · !burp, !sqliw</span>
+        <span class="lvl-badge tier-2">Lvl 40 · 3,900 pts · !xss</span>
+        <span class="lvl-badge tier-2">Lvl 45 · 4,400 pts · database opens</span>
+        <span class="lvl-badge tier-3">Lvl 55 · 5,400 pts · !admin</span>
+        <span class="lvl-badge tier-3">Lvl 60 · 5,900 pts · !revshell</span>
+        <span class="lvl-badge tier-3">Lvl 70 · 6,900 pts · !ransom</span>
+        <span class="lvl-badge tier-4">Lvl 75 · 7,400 pts · network opens</span>
+        <span class="lvl-badge tier-4">Lvl 85 · 8,400 pts · !ddos</span>
+        <span class="lvl-badge tier-5">Lvl 90 · 8,900 pts · EvilCorp opens</span>
+        <span class="lvl-badge tier-5">Lvl 100 · 9,900 pts · !socialengineer · MAX</span>
+      </div>
+    </div>
+    <div class="note-box">
+      Items boost both your <span class="hl-green">success rate</span> (up to 67%) and your <span class="hl-green">point payout (×1.5)</span> on matching attacks.
+      Levels never decrease. Points are always clamped to 0 minimum.
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       LOCATIONS
+  ══════════════════════════════════════════════ -->
+
+  <!-- ── EMAIL ─────────────────────────────────── -->
+  <div class="section" id="email">
+    <div class="section-head">
+      <span class="section-tag">LOC 1</span>
+      <span class="section-title">Email</span>
+    </div>
+    <div class="win loc-win">
+      <div class="win-bar">
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+        <div class="win-title">!hack email</div>
+      </div>
+      <div class="win-body">
+        <div class="loc-desc">Entry-level territory. Phishing campaigns, spoofed headers, and credential dumps. Best starting location — <span class="hl-green">!phish</span> works at level 0 with no gear required.</div>
+        <table class="atk-table">
+          <thead><tr><th>COMMAND</th><th>LVL</th><th class="hide-sm">CHANCE</th><th>POINTS</th><th class="hide-sm">ITEM BOOST</th></tr></thead>
+          <tbody>
+            <tr><td>!phish</td><td class="lvl-req">0</td><td class="chance-easy hide-sm">67%</td><td class="pts-val">+20–60</td><td class="hide-sm"><span class="item-tag">🕷️ EvilGinx</span> <span class="item-tag">🐉 Kali ISO</span></td></tr>
+            <tr><td>!spoof</td><td class="lvl-req">5</td><td class="chance-easy hide-sm">67%</td><td class="pts-val">+30–70</td><td class="hide-sm"><span class="item-tag">🕷️ EvilGinx</span></td></tr>
+            <tr><td>!dump</td> <td class="lvl-req">10</td><td class="chance-hard hide-sm">33%</td><td class="pts-val">+40–80</td><td class="hide-sm"><span class="item-tag">🧾 Mimikatz</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── /ETC/SHADOW ────────────────────────────── -->
+  <div class="section" id="shadow">
+    <div class="section-head">
+      <span class="section-tag">LOC 2</span>
+      <span class="section-title">/etc/shadow</span>
+    </div>
+    <div class="win loc-win">
+      <div class="win-bar">
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+        <div class="win-title">!hack /etc/shadow</div>
+      </div>
+      <div class="win-body">
+        <div class="loc-desc">Password file attacks. Cracking hashes, stealthy exfiltration, and brute-forcing credentials. <span class="hl-yellow">Hydra</span> is your best friend here.</div>
+        <table class="atk-table">
+          <thead><tr><th>COMMAND</th><th>LVL</th><th class="hide-sm">CHANCE</th><th>POINTS</th><th class="hide-sm">ITEM BOOST</th></tr></thead>
+          <tbody>
+            <tr><td>!crack</td>      <td class="lvl-req">15</td><td class="chance-easy hide-sm">67%</td><td class="pts-val">+50–90</td> <td class="hide-sm"><span class="item-tag">🗝️ Hydra</span></td></tr>
+            <tr><td>!stealth</td>    <td class="lvl-req">20</td><td class="chance-med hide-sm">50%</td> <td class="pts-val">+60–100</td><td class="hide-sm">—</td></tr>
+            <tr><td>!bruteforce</td> <td class="lvl-req">25</td><td class="chance-med hide-sm">50%</td> <td class="pts-val">+70–110</td><td class="hide-sm">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── WEBSITE ────────────────────────────────── -->
+  <div class="section" id="website">
+    <div class="section-head">
+      <span class="section-tag">LOC 3</span>
+      <span class="section-title">Website</span>
+    </div>
+    <div class="win loc-win">
+      <div class="win-bar">
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+        <div class="win-title">!hack website</div>
+      </div>
+      <div class="win-body">
+        <div class="loc-desc">Web application exploitation. Early recon with <span class="hl-green">!ffuf</span> (levels ≤5), then full web hacking once you level up. <span class="hl-yellow">Metasploit</span> and <span class="hl-yellow">Kali ISO</span> boost multiple attacks here.</div>
+        <table class="atk-table">
+          <thead><tr><th>COMMAND</th><th>LVL</th><th class="hide-sm">CHANCE</th><th>POINTS</th><th class="hide-sm">ITEM BOOST</th></tr></thead>
+          <tbody>
+            <tr><td>!ffuf</td>  <td class="lvl-req">≤5</td> <td class="chance-hard hide-sm">33%</td><td class="pts-val">+12–25</td> <td class="hide-sm"><span class="item-tag">🐉 Kali ISO</span> <span class="item-tag">🍪 Cookies</span></td></tr>
+            <tr><td>!burp</td>  <td class="lvl-req">30</td> <td class="chance-easy hide-sm">67%</td><td class="pts-val">+80–120</td><td class="hide-sm"><span class="item-tag">💥 Metasploit</span> <span class="item-tag">🍪 Cookies</span></td></tr>
+            <tr><td>!sqliw</td> <td class="lvl-req">35</td> <td class="chance-easy hide-sm">67%</td><td class="pts-val">+90–130</td><td class="hide-sm"><span class="item-tag">💥 Metasploit</span></td></tr>
+            <tr><td>!xss</td>   <td class="lvl-req">40</td> <td class="chance-hard hide-sm">33%</td><td class="pts-val">+100–140</td><td class="hide-sm"><span class="item-tag">💥 Metasploit</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── DATABASE ───────────────────────────────── -->
+  <div class="section" id="database">
+    <div class="section-head">
+      <span class="section-tag">LOC 4</span>
+      <span class="section-title">Database</span>
+    </div>
+    <div class="win loc-win">
+      <div class="win-bar">
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+        <div class="win-title">!hack database</div>
+      </div>
+      <div class="win-body">
+        <div class="loc-desc">Mid-game territory. SQL injection, full data dumps, and admin escalation. No item boosts here — pure skill. High risk, solid reward.</div>
+        <table class="atk-table">
+          <thead><tr><th>COMMAND</th><th>LVL</th><th class="hide-sm">CHANCE</th><th>POINTS</th><th class="hide-sm">ITEM BOOST</th></tr></thead>
+          <tbody>
+            <tr><td>!dumpdb</td> <td class="lvl-req">45</td><td class="chance-med hide-sm">50%</td><td class="pts-val">+110–150</td><td class="hide-sm">—</td></tr>
+            <tr><td>!sqlidb</td> <td class="lvl-req">50</td><td class="chance-med hide-sm">50%</td><td class="pts-val">+120–160</td><td class="hide-sm">—</td></tr>
+            <tr><td>!admin</td>  <td class="lvl-req">55</td><td class="chance-med hide-sm">50%</td><td class="pts-val">+130–170</td><td class="hide-sm">—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SERVER ────────────────────────────────── -->
+  <div class="section" id="server">
+    <div class="section-head">
+      <span class="section-tag">LOC 5</span>
+      <span class="section-title">Server</span>
+    </div>
+    <div class="win loc-win">
+      <div class="win-bar">
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+        <div class="win-title">!hack server</div>
+      </div>
+      <div class="win-body">
+        <div class="loc-desc">Server exploitation. Entry-level recon with <span class="hl-green">!nmap</span> (levels ≤5), then reverse shells, root escalation, and ransomware at the high end. <span class="hl-yellow">Metasploit</span> and <span class="hl-yellow">Nmap</span> pay off big here.</div>
+        <table class="atk-table">
+          <thead><tr><th>COMMAND</th><th>LVL</th><th class="hide-sm">CHANCE</th><th>POINTS</th><th class="hide-sm">ITEM BOOST</th></tr></thead>
+          <tbody>
+            <tr><td>!nmap</td>     <td class="lvl-req">≤5</td><td class="chance-hard hide-sm">33%</td><td class="pts-val">+12–25</td>  <td class="hide-sm"><span class="item-tag">📡 Nmap</span> <span class="item-tag">🔍 Shodan</span></td></tr>
+            <tr><td>!revshell</td> <td class="lvl-req">60</td><td class="chance-easy hide-sm">67%</td><td class="pts-val">+140–180</td><td class="hide-sm"><span class="item-tag">💥 Metasploit</span> <span class="item-tag">📡 Nmap</span> <span class="item-tag">🐉 Kali ISO</span></td></tr>
+            <tr><td>!root</td>     <td class="lvl-req">65</td><td class="chance-easy hide-sm">67%</td><td class="pts-val">+150–190</td><td class="hide-sm"><span class="item-tag">💥 Metasploit</span> <span class="item-tag">📡 Nmap</span></td></tr>
+            <tr><td>!ransom</td>   <td class="lvl-req">70</td><td class="chance-easy hide-sm">67%</td><td class="pts-val">+160–200</td><td class="hide-sm"><span class="item-tag">💿 VX Underground</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── NETWORK ────────────────────────────────── -->
+  <div class="section" id="network">
+    <div class="section-head">
+      <span class="section-tag">LOC 6</span>
+      <span class="section-title">Network</span>
+    </div>
+    <div class="win loc-win">
+      <div class="win-bar">
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+        <div class="win-title">!hack network</div>
+      </div>
+      <div class="win-body">
+        <div class="loc-desc">High-level network attacks. Packet sniffing, man-in-the-middle, and full DDoS campaigns. <span class="hl-yellow">Wireshark</span> is the dominant item here — pick one up before arriving.</div>
+        <table class="atk-table">
+          <thead><tr><th>COMMAND</th><th>LVL</th><th class="hide-sm">CHANCE</th><th>POINTS</th><th class="hide-sm">ITEM BOOST</th></tr></thead>
+          <tbody>
+            <tr><td>!sniff</td><td class="lvl-req">75</td><td class="chance-easy hide-sm">67%</td><td class="pts-val">+170–210</td><td class="hide-sm"><span class="item-tag">🦈 Wireshark</span> <span class="item-tag">📡 Nmap</span> <span class="item-tag">🔍 Shodan</span></td></tr>
+            <tr><td>!mitm</td> <td class="lvl-req">80</td><td class="chance-easy hide-sm">67%</td><td class="pts-val">+180–220</td><td class="hide-sm"><span class="item-tag">🦈 Wireshark</span></td></tr>
+            <tr><td>!ddos</td> <td class="lvl-req">85</td><td class="chance-easy hide-sm">67%</td><td class="pts-val">+190–230</td><td class="hide-sm"><span class="item-tag">🦈 Wireshark</span> <span class="item-tag">🔍 Shodan</span> <span class="item-tag">🎮 NES</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── EVILCORP ───────────────────────────────── -->
+  <div class="section" id="evilcorp">
+    <div class="section-head">
+      <span class="section-tag">LOC 7</span>
+      <span class="section-title">EvilCorp</span>
+    </div>
+    <div class="win loc-win" style="border-color:rgba(255,34,68,.3);box-shadow:0 0 18px rgba(255,34,68,.07);">
+      <div class="win-bar" style="background:rgba(255,34,68,.06);">
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+        <div class="win-title" style="color:var(--red);">!hack evilcorp &nbsp;//&nbsp; ENDGAME</div>
+      </div>
+      <div class="win-body">
+        <div class="loc-desc">Endgame infiltration. Physical-world attacks — USB drops, tailgating, full social engineering. The <span class="hl-red">most points in the game</span>. <span class="hl-yellow">O.MG Cable</span> and <span class="hl-yellow">YubiKey</span> are key here.</div>
+        <table class="atk-table">
+          <thead><tr><th>COMMAND</th><th>LVL</th><th class="hide-sm">CHANCE</th><th>POINTS</th><th class="hide-sm">ITEM BOOST</th></tr></thead>
+          <tbody>
+            <tr><td>!drop</td>          <td class="lvl-req">90</td> <td class="chance-easy hide-sm">67%</td><td class="pts-val">+200–240</td><td class="hide-sm"><span class="item-tag">🔌 O.MG Cable</span></td></tr>
+            <tr><td>!tailgate</td>      <td class="lvl-req">95</td> <td class="chance-easy hide-sm">67%</td><td class="pts-val">+210–250</td><td class="hide-sm"><span class="item-tag">🔌 O.MG Cable</span> <span class="item-tag">🪫 YubiKey</span></td></tr>
+            <tr><td>!socialengineer</td><td class="lvl-req">100</td><td class="chance-med hide-sm">50%</td> <td class="pts-val">+220–260</td><td class="hide-sm"><span class="item-tag">🪫 YubiKey</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ITEMS ──────────────────────────────────── -->
+  <div class="section" id="items">
+    <div class="section-head">
+      <span class="section-tag">GEAR</span>
+      <span class="section-title">Items</span>
+    </div>
+    <p style="color:var(--text);font-size:.83rem;line-height:1.7;margin-bottom:18px;">
+      Items boost your <span class="hl-green">success chance</span> and <span class="hl-green">point payout (×1.5)</span> on matching attacks.
+      Loot them from boss battles, item drops in chat (<span class="hl-green">!grab &lt;item&gt;</span>), or hidden commands.
+      Check your gear with <span class="hl-green">!items</span>.
+    </p>
+
+    <p style="color:var(--purple-bright);font-size:.72rem;letter-spacing:.18em;margin-bottom:12px;">HACK TOOLS // boost specific attacks</p>
+    <div class="items-grid" style="margin-bottom:24px;">
+      <div class="item-card"><div class="item-icon">🦈</div><div class="item-name">Wireshark</div><div class="item-boosts">!sniff · !mitm · !ddos</div></div>
+      <div class="item-card"><div class="item-icon">💥</div><div class="item-name">Metasploit</div><div class="item-boosts">!revshell · !root · !burp · !sqliw · !xss</div></div>
+      <div class="item-card"><div class="item-icon">🕷️</div><div class="item-name">EvilGinx</div><div class="item-boosts">!phish · !spoof</div></div>
+      <div class="item-card"><div class="item-icon">🔌</div><div class="item-name">O.MG Cable</div><div class="item-boosts">!drop · !tailgate</div></div>
+      <div class="item-card"><div class="item-icon">💿</div><div class="item-name">VX Underground HDD</div><div class="item-boosts">!ransom</div></div>
+      <div class="item-card"><div class="item-icon">📡</div><div class="item-name">Nmap</div><div class="item-boosts">!revshell · !root · !sniff</div></div>
+      <div class="item-card"><div class="item-icon">🗝️</div><div class="item-name">Hydra</div><div class="item-boosts">!crack · !bruteforce</div></div>
+      <div class="item-card"><div class="item-icon">🔍</div><div class="item-name">Shodan API Key</div><div class="item-boosts">!sniff · !ddos</div></div>
+      <div class="item-card"><div class="item-icon">🐉</div><div class="item-name">Kali ISO</div><div class="item-boosts">!phish · !burp · !revshell · !ffuf</div></div>
+      <div class="item-card"><div class="item-icon">🧾</div><div class="item-name">Mimikatz</div><div class="item-boosts">!dump</div></div>
+      <div class="item-card"><div class="item-icon">🪫</div><div class="item-name">YubiKey</div><div class="item-boosts">!tailgate · !socialengineer</div></div>
+      <div class="item-card"><div class="item-icon">🍪</div><div class="item-name">Cookies</div><div class="item-boosts">!burp · !ffuf</div></div>
+    </div>
+
+    <p style="color:var(--purple-bright);font-size:.72rem;letter-spacing:.18em;margin-bottom:12px;">SPECIAL &amp; RARE ITEMS</p>
+    <div class="items-grid">
+      <div class="item-card secret"><div class="item-icon">🎮</div><div class="item-name">NES</div><div class="item-boosts">!ddos · !xss<br><span style="color:rgba(192,132,252,.5)">Konami code reward</span></div></div>
+      <div class="item-card secret"><div class="item-icon">🔫</div><div class="item-name">Contra Cartridge</div><div class="item-boosts">!ddos · !ransom<br><span style="color:rgba(192,132,252,.5)">Konami code reward</span></div></div>
+      <div class="item-card secret"><div class="item-icon">☕</div><div class="item-name">Black Coffee</div><div class="item-boosts">flavor item<br><span style="color:rgba(192,132,252,.5)">hidden command</span></div></div>
+      <div class="item-card secret"><div class="item-icon">🏈</div><div class="item-name">Tiny Browns Helmet</div><div class="item-boosts">flavor item<br><span style="color:rgba(192,132,252,.5)">chat trigger</span></div></div>
+      <div class="item-card secret"><div class="item-icon">🧉</div><div class="item-name">Root Beer Flask</div><div class="item-boosts">Patch Tuesday<br><span style="color:rgba(192,132,252,.5)">event reward</span></div></div>
+      <div class="item-card secret"><div class="item-icon">📼</div><div class="item-name">Golden Cassette Tape</div><div class="item-boosts">MVP award<br><span style="color:rgba(192,132,252,.5)">rare</span></div></div>
+      <div class="item-card secret"><div class="item-icon">🥷</div><div class="item-name">Jet Black Hoodie</div><div class="item-boosts">MVP award<br><span style="color:rgba(192,132,252,.5)">rare</span></div></div>
+      <div class="item-card secret"><div class="item-icon">🎹</div><div class="item-name">RGB Keyboard (Purple)</div><div class="item-boosts">MVP award<br><span style="color:rgba(192,132,252,.5)">rare</span></div></div>
+    </div>
+    <div class="note-box">
+      Dropped items appear in chat and expire after <span class="hl-yellow">15 minutes</span>. Type <span class="hl-green">!grab &lt;item name&gt;</span> to claim before they're gone.
+      You can't grab items you already own.
+    </div>
+  </div>
+
+  <!-- ── BOSS BATTLE ─────────────────────────────── -->
+  <div class="section" id="boss">
+    <div class="section-head">
+      <span class="section-tag">RAID</span>
+      <span class="section-title">Boss Battle</span>
+    </div>
+    <div class="win" style="border:1px solid rgba(255,34,68,.4);box-shadow:0 0 20px rgba(255,34,68,.08);">
+      <div class="win-bar" style="background:rgba(255,34,68,.07);">
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+        <div class="win-title" style="color:var(--red);">!bossbattle // team raid vs. 1337haxxor Theo</div>
+      </div>
+      <div class="win-body">
+        <p style="color:var(--text);font-size:.84rem;line-height:1.7;margin-bottom:16px;">
+          When a boss battle starts, up to <span class="hl-red">5 players</span> can join the raid team against Theo (up to 1000 HP).
+          Battles run up to 15 turns — boss hits the whole team each round, team auto-attacks back,
+          and each player gets one manual <span class="hl-green">!hack</span> nuke.
+          Survivors earn <span class="hl-yellow">200–500 points</span> and <span class="hl-yellow">+5 permanent max HP</span>.
+        </p>
+        <p style="color:var(--text);font-size:.84rem;">
+          Full mechanics, commands, hack items, and reward formula:
+          <a href="https://bossbattle-guide.b7h30.com/" target="_blank"
+             style="color:var(--blue);text-shadow:0 0 8px rgba(0,180,255,.4);">
+            bossbattle-guide.b7h30.com →
+          </a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECRETS ────────────────────────────────── -->
+  <div class="section" id="secrets">
+    <div class="section-head">
+      <span class="section-tag">???</span>
+      <span class="section-title">Hidden Commands</span>
+    </div>
+    <p style="color:var(--text);font-size:.83rem;line-height:1.7;margin-bottom:18px;">
+      These aren't listed in <span class="hl-green">!botcmds</span>. Each works once per session per user.
+    </p>
+    <div class="secret-cards">
+      <div class="secret-card">
+        <div class="secret-trigger">!uuddlrlrba</div>
+        <div class="secret-detail">The Konami code. Type it exactly in chat. Must be registered.</div>
+        <div class="secret-reward">🎮 Random Contra/NES item + 50 points</div>
+      </div>
+      <div class="secret-card">
+        <div class="secret-trigger">!coffee</div>
+        <div class="secret-detail">Request a coffee. Works once per session. Must be registered.</div>
+        <div class="secret-reward">☕ Fresh Hot Cup of Black Coffee + 25 points</div>
+      </div>
+      <div class="secret-card">
+        <div class="secret-trigger">#gobrowns</div>
+        <div class="secret-detail">Mention it in chat (not a bot command — just type it). Welcome to the fanbase.</div>
+        <div class="secret-reward">🏈 Tiny Browns Helmet added to inventory</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── COMMAND REFERENCE ──────────────────────── -->
+  <div class="section" id="commands">
+    <div class="section-head">
+      <span class="section-tag">REF</span>
+      <span class="section-title">Command Reference</span>
+    </div>
+    <div class="win" style="border:1px solid var(--border);">
+      <div class="win-bar">
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+        <div class="win-title">ALL_COMMANDS</div>
+      </div>
+      <div class="win-body" style="padding:0;">
+        <table class="cmd-table">
+          <thead><tr><th>COMMAND</th><th>WHAT IT DOES</th></tr></thead>
+          <tbody>
+            <tr><td>!start</td>          <td>Register your hacker account. Required before anything else.</td></tr>
+            <tr><td>!status [player]</td><td>Your stats: level, HP, points, location, items. Add a name to look someone up.</td></tr>
+            <tr><td>!points</td>         <td>Your current point total.</td></tr>
+            <tr><td>!leaderboard</td>    <td>Top 5 players by points.</td></tr>
+            <tr><td>!hack [location]</td><td>Move to a location (email, website, server, etc). No argument = show current location.</td></tr>
+            <tr><td>!attacks</td>        <td>List all attacks at your current location with level requirements.</td></tr>
+            <tr><td>!help</td>           <td>In-chat quick-start guide.</td></tr>
+            <tr><td>!items</td>          <td>Your inventory + any dropped items currently available in chat.</td></tr>
+            <tr><td>!grab &lt;item&gt;</td><td>Claim a dropped item before it expires (15 min window).</td></tr>
+            <tr><td>!bossbattle</td>     <td>Initiate a boss raid. 1-hour cooldown between battles.</td></tr>
+            <tr><td>!joinbattle</td>     <td>Join an active boss raid (during 30-sec join window).</td></tr>
+            <tr><td>!hack (in battle)</td><td>One-time damage nuke: 30–60 dmg, or 55–85 with a hack item.</td></tr>
+            <tr><td>!battle</td>         <td>Check current boss battle status (phase, boss HP, team).</td></tr>
+            <tr><td>!bossbattleguide</td><td>Link to the full boss battle how-to guide.</td></tr>
+            <tr><td>!hello</td>          <td>Wave at the bot.</td></tr>
+            <tr><td>!coinflip</td>       <td>Heads or tails.</td></tr>
+            <tr><td>!d4 / !d6 / !d20 / !d100</td><td>Roll dice. Also !roll [sides] for custom.</td></tr>
+            <tr><td>!juststart</td>      <td>Motivational speech.</td></tr>
+            <tr><td>!monday [prompt]</td><td>Ask the AI assistant something. Has a global cooldown.</td></tr>
+            <tr><td>!botcmds</td>        <td>Public command list in chat.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TIPS ───────────────────────────────────── -->
+  <div class="section" id="tips">
+    <div class="section-head">
+      <span class="section-tag">PRO</span>
+      <span class="section-title">Tactics</span>
+    </div>
+    <ul class="tips-list">
+      <li>New player? Start at <span class="hl-green">email</span> — <span class="hl-green">!phish</span> works at level 0 with no gear and has a 67% success rate. Grind it until you can afford better attacks.</li>
+      <li>Check <span class="hl-green">!items</span> before picking your next attack. A matching item bumps your success rate up to 67% <em>and</em> multiplies your payout by 1.5x — that's a massive swing.</li>
+      <li>Items in chat expire in <span class="hl-yellow">15 minutes</span>. Watch for the drop announcement and type <span class="hl-green">!grab &lt;item name&gt;</span> fast.</li>
+      <li>The <span class="hl-blue">database</span> location (levels 45–55) has no item boosts — it's pure RNG. Save it for when your level is well above the requirement to reduce the sting of failure streaks.</li>
+      <li>Server attacks at <span class="hl-blue">levels 60–70</span> have both high payouts <em>and</em> multiple item boosts. <span class="hl-yellow">Metasploit</span> alone covers !revshell, !root, and more — it's the most versatile item in the game.</li>
+      <li>Type the Konami code (<span class="hl-purp">!uuddlrlrba</span>) early in the session — the NES or Contra Cartridge it gives you boosts !ddos at level 85.</li>
+      <li>Joining a boss battle with a <span class="hl-green">small team</span> (2–3 players) earns more points per person than a full 5-player squad if you survive. High risk, high reward.</li>
+      <li>Points never go below 0, but failed attacks at high levels can hurt. If you're on a bad streak, drop back to a lower-level location to stabilize your score.</li>
+    </ul>
+  </div>
+
+  <footer>
+    TWITCHHACK // PAINFULBOT // twitch.tv/b7h30<span class="cursor">_</span>
+  </footer>
+
+</div>
+</body>
+</html>
