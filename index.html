@@ -295,6 +295,52 @@
     @media (max-width:600px) {
       .atk-table .hide-sm { display:none; }
     }
+    /* ── Play CTA ─────────────────────────────────── */
+    @keyframes cta-pulse {
+      0%,100% { box-shadow: 0 0 14px rgba(255,34,68,.45), 0 0 30px rgba(255,34,68,.15); }
+      50%     { box-shadow: 0 0 28px rgba(255,34,68,.85), 0 0 60px rgba(255,34,68,.35); }
+    }
+    .play-cta {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      margin: 18px auto 28px;
+      padding: 18px 28px;
+      max-width: 540px;
+      background: linear-gradient(180deg, rgba(255,34,68,.08), rgba(255,34,68,.02));
+      border: 1px solid var(--red);
+      text-align: center;
+      text-decoration: none;
+      color: var(--red);
+      font-family: 'VT323', monospace;
+      letter-spacing: 2px;
+      animation: cta-pulse 2.4s ease-in-out infinite;
+      transition: transform .15s;
+    }
+    .play-cta:hover { transform: translateY(-2px); }
+    .play-cta .play-prefix {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .75rem;
+      color: var(--muted-green);
+      letter-spacing: 1px;
+    }
+    .play-cta .play-title {
+      font-size: 2rem;
+      color: var(--red);
+      text-shadow: 0 0 10px rgba(255,34,68,.6);
+    }
+    .play-cta .play-sub {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: .8rem;
+      color: var(--text);
+      letter-spacing: .5px;
+    }
+    .play-cta .play-arrow {
+      color: var(--red);
+      font-size: 1.4rem;
+      margin-top: 4px;
+    }
   </style>
 </head>
 <body>
@@ -305,6 +351,14 @@
     <div class="logo">TWITC<span>H</span>ACK</div>
     <div class="tagline">PAINFULBOT // HACKER MANUAL // twitch.tv/b7h30<span class="cursor">_</span></div>
   </header>
+
+  <!-- ── PLAY CTA ──────────────────────────────── -->
+  <a href="https://bossbattle.b7h30.com/twitchack" class="play-cta">
+    <span class="play-prefix">// done reading? &mdash; jack in</span>
+    <span class="play-title">&#9654; PLAY THE GAME</span>
+    <span class="play-sub">log in with Twitch &middot; bossbattle.b7h30.com/twitchack</span>
+    <span class="play-arrow">&rarr;</span>
+  </a>
 
   <!-- ── NAV ───────────────────────────────────── -->
   <nav>
