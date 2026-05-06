@@ -376,6 +376,7 @@
     <a href="#boss">Boss Battle</a>
     <a href="#commands">Commands</a>
     <a href="#tips">Tips</a>
+    <a href="#season1">Season 1</a>
   </nav>
 
   <!-- ── QUICKSTART ────────────────────────────── -->
@@ -782,6 +783,49 @@
       <li>Joining a boss battle with a <span class="hl-green">small team</span> (2–3 players) earns more points per person than a full 5-player squad if you survive. High risk, high reward.</li>
       <li>Points never go below 0, but failed attacks at high levels can hurt. If you're on a bad streak, drop back to a lower-level location to stabilize your score.</li>
     </ul>
+  </div>
+
+  <!-- ── SEASON 1 ARCHIVE ──────────────────────────── -->
+  <div class="section" id="season1">
+    <div class="section-head">
+      <span class="section-tag">S1</span>
+      <span class="section-title">Season 1 // The Archive</span>
+    </div>
+    <p style="color:var(--text);margin-bottom:14px;line-height:1.6;">
+      TwitcHack ran on a flat leveling curve through Season 1: every <span class="hl-green">100 points</span> = 1 level. With no scaling, the leaderboard inflated fast — top players hit <span class="hl-yellow">100,000+</span> levels, which made "level" a less meaningful number than "still here."
+    </p>
+    <p style="color:var(--text);margin-bottom:14px;line-height:1.6;">
+      Season 2 launched with a <span class="hl-blue">progressive curve</span>: each level requires more points than the last. Reaching level 5 still happens in your first session; reaching level 100 is now a real grind. The full curve:
+      <code style="display:block;margin-top:6px;color:var(--green);background:var(--bg-panel);padding:8px 12px;border:1px solid var(--border);">total points required for level N = 50 × N × (N − 1)</code>
+    </p>
+    <p style="color:var(--text);margin-bottom:14px;line-height:1.6;">
+      Existing levels were recomputed under the new curve, but every player who registered before the reset earned a permanent <span class="hl-yellow">FOUNDER</span> badge tied to their final Season 1 level. New players post-reset cannot earn one — these badges are forever.
+    </p>
+    <div class="qs-grid" style="margin-top:18px;">
+      <div class="qs-card">
+        <div class="qs-num" style="color:#ff4d8d;">31337</div>
+        <div class="qs-cmd" style="color:#ff4d8d;">FOUNDER::31337</div>
+        <div class="qs-desc">Hit <span class="hl-green">100,000+</span> levels in Season 1. Elite tier. The <em>real</em> originals.</div>
+      </div>
+      <div class="qs-card">
+        <div class="qs-num" style="color:var(--purple-bright);">1337</div>
+        <div class="qs-cmd" style="color:var(--purple-bright);">FOUNDER::1337</div>
+        <div class="qs-desc">Hit <span class="hl-green">10,000–100,000</span> levels in Season 1. Veteran hackers.</div>
+      </div>
+      <div class="qs-card">
+        <div class="qs-num" style="color:var(--blue);">H4CK3R</div>
+        <div class="qs-cmd" style="color:var(--blue);">FOUNDER::H4CK3R</div>
+        <div class="qs-desc">Hit <span class="hl-green">1,000–10,000</span> levels in Season 1. Made their mark.</div>
+      </div>
+      <div class="qs-card">
+        <div class="qs-num">0P3R4T0R</div>
+        <div class="qs-cmd">FOUNDER::0P3R4T0R</div>
+        <div class="qs-desc">Registered in Season 1, under <span class="hl-green">1,000</span> levels. Day-one operator.</div>
+      </div>
+    </div>
+    <p style="color:var(--text-muted, #666);font-size:.8rem;margin-top:14px;font-style:italic;">
+      // The Season 1 leaderboard is preserved in <code>player_data.s1_backup.json</code>. The history is not erased &mdash; it's archived.
+    </p>
   </div>
 
   <footer>
